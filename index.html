@@ -270,6 +270,23 @@
   @media (prefers-reduced-motion: reduce){
     .petals-layer{ display:none; }
   }
+
+  /* ---------------------------------------------------------------------
+     MARIGOLD GARLAND CORNERS — small SVG flower clusters tucked into the
+     corners of key cards for an extra floral touch beyond the falling
+     petals. Purely decorative, pointer-events disabled.
+     --------------------------------------------------------------------- */
+  .floral-corner{
+    position:absolute;
+    width:46px; height:46px;
+    pointer-events:none;
+    opacity:0.85;
+    z-index:2;
+  }
+  .floral-corner.fc-tl{ top:-14px; left:-14px; }
+  .floral-corner.fc-tr{ top:-14px; right:-14px; transform:scaleX(-1); }
+  .floral-corner.fc-br{ bottom:-14px; right:-14px; transform:scale(-1); }
+  .floral-corner.fc-bl{ bottom:-14px; left:-14px; transform:scaleY(-1); }
 </style>
 </head>
 <body class="bg-cream text-ink font-body">
@@ -286,7 +303,7 @@
   "couple": {
     "brideName": "पलक गोला",
     "groomName": "सूरज देव",
-    "coupleShort": "पलक वेड्स सूरज"
+    "coupleShort": "Palak weds Suraj"
   },
   "hosts": {
     "groomParents": "श्री दिनेश लाल देव जी के सुपुत्र",
@@ -930,8 +947,8 @@
 
   // ---------------------------------------------------------------------
   // 5. FALLING PETALS — spawns marigold/rose/brass petals that drift down
-  //    over the names section, each with randomised size, sway, spin and
-  //    timing so the fall never looks mechanical or repetitive.
+  //    over the names section only, each with randomised size, sway, spin
+  //    and timing so the fall never looks mechanical or repetitive.
   // ---------------------------------------------------------------------
   (function initPetals() {
     var layer = document.getElementById('introPetals');
@@ -940,13 +957,13 @@
     if (reduceMotion) return;
 
     var colors = ['petal-marigold', 'petal-brass', 'petal-rose'];
-    var count = window.innerWidth < 640 ? 14 : 20;
+    var count = window.innerWidth < 640 ? 22 : 32;
 
     for (var i = 0; i < count; i++) {
       var petal = document.createElement('span');
-      var size = 9 + Math.random() * 10;         // 9–19px
-      var duration = 9 + Math.random() * 8;       // 9–17s per fall
-      var delay = -(Math.random() * duration);    // stagger so petals are already mid-fall on load
+      var size = 9 + Math.random() * 10;          // 9–19px
+      var duration = 9 + Math.random() * 8;        // 9–17s per fall
+      var delay = -(Math.random() * duration);     // stagger so petals are already mid-fall on load
       var drift = Math.round((Math.random() - 0.5) * 220); // -110px .. 110px sideways sway
       var spin = Math.round(180 + Math.random() * 360);
 
