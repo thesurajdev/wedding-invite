@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#3A0B12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="msapplication-navbutton-color" content="#3A0B12">
 <title>शुभ विवाह</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Mukta:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&display=swap" rel="stylesheet">
@@ -34,6 +38,19 @@
 
   html, body{ height:100%; }
   body{ overflow-x:hidden; font-size:17px; line-height:1.7; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; font-variant-numeric:lining-nums proportional-nums; }
+
+  /* ---------------------------------------------------------------------
+     TRUE VIEWPORT HEIGHT — min-h-screen (100vh) doesn't account for
+     mobile browser chrome (URL bar) showing/hiding as the user scrolls,
+     leaving a gap or cutting off content. 100dvh (dynamic viewport
+     height) tracks the real visible area; --vh is a JS-computed fallback
+     for browsers that don't support dvh yet.
+     --------------------------------------------------------------------- */
+  .min-h-screen{ min-height:100vh !important; }
+  .min-h-screen{ min-height:calc(var(--vh, 1vh) * 100) !important; }
+  @supports (height: 100dvh){
+    .min-h-screen{ min-height:100dvh !important; }
+  }
 
   html{ scrollbar-width:none; -ms-overflow-style:none; }
   html::-webkit-scrollbar{ display:none; }
@@ -77,7 +94,8 @@
   #door-scene.show{ opacity:1; visibility:visible; }
   #door-scene.dismiss{ opacity:0; visibility:hidden; transition:opacity 1s ease, visibility 1s ease; }
 
-  .temple-gate{ perspective:3200px; }
+  .temple-gate{ perspective:3200px; overflow:hidden; }
+  .door-leaf-wrap{ transform-style:preserve-3d; }
 
   .wood-grain{
     background-color:#5a3b22;
@@ -127,8 +145,8 @@
   }
   .door-leaf.left{ transform-origin:left center; }
   .door-leaf.right{ transform-origin:right center; }
-  #door-scene.opened .door-leaf.left{ transform:rotateY(-100deg); }
-  #door-scene.opened .door-leaf.right{ transform:rotateY(100deg); }
+  #door-scene.opened .door-leaf.left{ transform:rotateY(100deg); }
+  #door-scene.opened .door-leaf.right{ transform:rotateY(-100deg); }
 
   .door-leaf::after{
     content:'';
@@ -140,6 +158,45 @@
   }
   .door-leaf.right::after{ background:linear-gradient(270deg, transparent 55%, rgba(0,0,0,0.55) 100%); }
   #door-scene.opened .door-leaf::after{ opacity:1; }
+
+  /* ---------------------------------------------------------------------
+     KNOCK-KNOCK HINT — a periodic little shake/rattle on both door
+     leaves (as if someone on the inside is knocking) plus a pulsing
+     "Knock to Open" label, so the guest understands the door is
+     tappable. Both stop the moment the door starts opening.
+     --------------------------------------------------------------------- */
+  .door-leaf.knock-left{ animation:knockLeft 3.6s ease-in-out infinite; }
+  .door-leaf.knock-right{ animation:knockRight 3.6s ease-in-out infinite; }
+  @keyframes knockLeft{
+    0%, 55%, 100% { transform:rotateY(0deg); }
+    58% { transform:rotateY(-3deg); }
+    61% { transform:rotateY(1deg); }
+    64% { transform:rotateY(-2deg); }
+    67% { transform:rotateY(0deg); }
+  }
+  @keyframes knockRight{
+    0%, 55%, 100% { transform:rotateY(0deg); }
+    58% { transform:rotateY(3deg); }
+    61% { transform:rotateY(-1deg); }
+    64% { transform:rotateY(2deg); }
+    67% { transform:rotateY(0deg); }
+  }
+  #door-scene.opened .door-leaf.knock-left,
+  #door-scene.opened .door-leaf.knock-right{ animation:none; }
+
+  .knock-hint{
+    animation:knockHintPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes knockHintPulse{
+    0%, 100% { opacity:0.65; transform:translateX(-50%) scale(1); }
+    50% { opacity:1; transform:translateX(-50%) scale(1.05); }
+  }
+  #door-scene.opened .knock-hint{ opacity:0 !important; }
+
+  @media (prefers-reduced-motion: reduce){
+    .door-leaf.knock-left, .door-leaf.knock-right{ animation:none; }
+    .knock-hint{ animation:none; }
+  }
 
   #door-scene.opened .glow-inside{ opacity:1; }
   .glow-inside{ transition:opacity 1.2s ease .2s; }
@@ -684,12 +741,12 @@
 <!-- ================= DOOR SCENE ================= -->
 <div id="door-scene" class="fixed inset-0 z-[900]">
   <div class="temple-gate absolute inset-0 cursor-pointer" id="doorFrame" role="button" tabindex="0" aria-label="Open the door to view invitation">
-    <div class="absolute inset-0 bg-[linear-gradient(180deg,#0c0805_0%,#161009_50%,#0a0703_100%)] transition-opacity duration-700" id="doorWall"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,#0c0805_0%,#161009_50%,#0a0703_100%)]" id="doorWall" style="transition:opacity 1.4s cubic-bezier(.45,0,.2,1);"></div>
 
-    <div class="absolute top-0 bottom-0 left-0 right-0 z-[1] overflow-hidden shadow-[inset_0_0_120px_rgba(0,0,0,0.85)]">
+    <div class="door-leaf-wrap absolute top-0 bottom-0 left-0 right-0 z-[1] shadow-[inset_0_0_120px_rgba(0,0,0,0.85)]">
       <div class="glow-inside absolute inset-0 opacity-0 z-[5] bg-[radial-gradient(circle_at_50%_35%,_rgba(232,183,110,0.4),_transparent_60%)]"></div>
 
-      <div class="door-leaf left wood-grain absolute inset-y-0 left-0 w-1/2 shadow-[inset_-10px_0_30px_rgba(0,0,0,0.6),8px_0_40px_rgba(0,0,0,0.5)]">
+      <div class="door-leaf left knock-left wood-grain absolute inset-y-0 left-0 w-1/2 shadow-[inset_-10px_0_30px_rgba(0,0,0,0.6),8px_0_40px_rgba(0,0,0,0.5)]">
         <div class="grain-overlay"></div>
         <div class="panel-inlay wood-grain-panel absolute left-[9%] right-[9%] top-[4%] h-[27%]"><div class="panel-inlay-inner"></div></div>
         <div class="panel-inlay wood-grain-panel absolute left-[9%] right-[9%] top-[36.5%] h-[27%]"><div class="panel-inlay-inner"></div></div>
@@ -704,7 +761,7 @@
         </div>
       </div>
 
-      <div class="door-leaf right wood-grain absolute inset-y-0 right-0 w-1/2 shadow-[inset_10px_0_30px_rgba(0,0,0,0.6),-8px_0_40px_rgba(0,0,0,0.5)]">
+      <div class="door-leaf right knock-right wood-grain absolute inset-y-0 right-0 w-1/2 shadow-[inset_10px_0_30px_rgba(0,0,0,0.6),-8px_0_40px_rgba(0,0,0,0.5)]">
         <div class="grain-overlay"></div>
         <div class="panel-inlay wood-grain-panel absolute left-[9%] right-[9%] top-[4%] h-[27%]"><div class="panel-inlay-inner"></div></div>
         <div class="panel-inlay wood-grain-panel absolute left-[9%] right-[9%] top-[36.5%] h-[27%]"><div class="panel-inlay-inner"></div></div>
@@ -719,7 +776,14 @@
         </div>
       </div>
 
-      <div id="doorSeam" class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[6px] bg-black/70 blur-[1px] z-[2] pointer-events-none transition-opacity duration-700"></div>
+      <div id="doorSeam" class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[6px] bg-black/70 blur-[1px] z-[2] pointer-events-none" style="transition:opacity 1.4s cubic-bezier(.45,0,.2,1);"></div>
+    </div>
+
+    <div class="knock-hint absolute z-[6] left-1/2 bottom-10 md:bottom-14 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
+      <svg viewBox="0 0 24 24" class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="#E9B65E" stroke-width="1.6">
+        <path d="M9 12.5V7a1.5 1.5 0 0 1 3 0v4.2M12 11.2V6a1.5 1.5 0 0 1 3 0v5.6M15 11.4V8a1.5 1.5 0 0 1 3 0v6c0 3.3-2.2 6-6 6s-5.4-1.6-6.6-3.6L4 12.8c-.5-.9-.2-1.9.6-2.3.7-.4 1.5-.1 2 .5L9 13"/>
+      </svg>
+      <span class="text-[11px] tracking-[2.5px] uppercase text-brass-light font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">Knock to Open</span>
     </div>
   </div>
 </div>
@@ -756,6 +820,27 @@
       footer: { line: '' }
     };
   }
+
+  // ---------------------------------------------------------------------
+  // 0. TRUE VIEWPORT HEIGHT FALLBACK — sets a --vh custom property to
+  //    1% of the real visible height (window.innerHeight), so browsers
+  //    without 100dvh support still size sections correctly as the
+  //    mobile URL bar shows/hides. Recalculated on resize and orientation
+  //    change; visualViewport listener catches the URL-bar-only case on
+  //    browsers that fire it without a resize event.
+  // ---------------------------------------------------------------------
+  (function initViewportHeightVar() {
+    function setVh() {
+      var vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', vh + 'px');
+    }
+    setVh();
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setVh);
+    }
+  })();
 
   function setText(id, value) {
     var el = document.getElementById(id);
@@ -996,63 +1081,57 @@
   }
   var TARGET_VOLUME = 0.6;
   var CROSSFADE_MS = 1500;
-  var tracksSwitched = false;
+  // 'hero' = Ganesh mantra active, 'secondary' = wedding song active.
+  // Tracked so repeated scroll-back-and-forth crossfades resume each
+  // track from wherever it was paused, instead of restarting from 0.
+  var activeTrack = 'hero';
+  var fadeTimer = null;
 
-  // Starts the secondary track immediately at volume 0, in parallel with
-  // the primary track, so it is already playing (not just loaded) by the
-  // time the scroll trigger fires — the "switch" then becomes a pure
-  // volume crossfade with zero start-up latency instead of waiting on a
-  // fresh .play() call at switch time.
-  function primeSecondaryTrackPlayback() {
-    if (!bgAudioSecondaryEl || !BG_MUSIC_SECONDARY_SRC) return;
-    bgAudioSecondaryEl.volume = 0;
-    var playPromise = bgAudioSecondaryEl.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(function (err) {
-        console.warn('Secondary background track could not pre-start; will attempt again on switch.', err);
-      });
+  function crossfade(toSecondary) {
+    if ((toSecondary && activeTrack === 'secondary') || (!toSecondary && activeTrack === 'hero')) return;
+    activeTrack = toSecondary ? 'secondary' : 'hero';
+
+    var fadeInEl = toSecondary ? bgAudioSecondaryEl : bgAudioEl;
+    var fadeOutEl = toSecondary ? bgAudioEl : bgAudioSecondaryEl;
+    if (!fadeInEl) return;
+
+    if (fadeTimer) clearInterval(fadeTimer);
+
+    // Resume the incoming track from wherever it was left off (or from
+    // the start the very first time it plays), never restarting it.
+    if (fadeInEl.paused) {
+      var playPromise = fadeInEl.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(function (err) {
+          console.warn('Background track autoplay was blocked.', err);
+        });
+      }
     }
-  }
 
-  function crossfadeToSecondaryTrack() {
-    if (tracksSwitched) return;
-    if (!bgAudioSecondaryEl || !BG_MUSIC_SECONDARY_SRC) return;
-    tracksSwitched = true;
-
-    var startPlaying = function () {
-      // If pre-starting earlier succeeded, this is a no-op (already
-      // playing); if it was blocked, this is the fallback attempt.
-      if (bgAudioSecondaryEl.paused) {
-        var playPromise = bgAudioSecondaryEl.play();
-        if (playPromise && typeof playPromise.catch === 'function') {
-          playPromise.catch(function (err) {
-            console.warn('Secondary background track autoplay was blocked.', err);
-          });
+    var steps = 30;
+    var stepMs = CROSSFADE_MS / steps;
+    var i = 0;
+    fadeTimer = setInterval(function () {
+      i++;
+      var t = i / steps;
+      fadeInEl.volume = Math.min(TARGET_VOLUME, TARGET_VOLUME * t);
+      if (fadeOutEl) {
+        fadeOutEl.volume = Math.max(0, TARGET_VOLUME * (1 - t));
+      }
+      if (i >= steps) {
+        clearInterval(fadeTimer);
+        fadeTimer = null;
+        // Pause (don't reset currentTime) so it resumes from this exact
+        // point next time this track is faded back in.
+        if (fadeOutEl) {
+          fadeOutEl.pause();
         }
       }
-
-      var steps = 30;
-      var stepMs = CROSSFADE_MS / steps;
-      var i = 0;
-      var fadeTimer = setInterval(function () {
-        i++;
-        var t = i / steps;
-        bgAudioSecondaryEl.volume = Math.min(TARGET_VOLUME, TARGET_VOLUME * t);
-        if (bgAudioEl) {
-          bgAudioEl.volume = Math.max(0, TARGET_VOLUME * (1 - t));
-        }
-        if (i >= steps) {
-          clearInterval(fadeTimer);
-          if (bgAudioEl) {
-            bgAudioEl.pause();
-            bgAudioEl.volume = TARGET_VOLUME; // reset in case it's ever resumed elsewhere
-          }
-        }
-      }, stepMs);
-    };
-
-    startPlaying();
+    }, stepMs);
   }
+
+  function crossfadeToSecondaryTrack() { crossfade(true); }
+  function crossfadeToHeroTrack() { crossfade(false); }
 
   function playBackgroundMusic() {
     if (!BG_MUSIC_SRC) return;
@@ -1080,7 +1159,24 @@
     // Fire music first, before any class changes, so it starts the instant
     // the door begins animating rather than after the visual work is queued.
     playBackgroundMusic();
-    primeSecondaryTrackPlayback();
+    // The knock-knock idle animation also targets `transform` on these
+    // elements; an infinite CSS animation keeps winning over the
+    // transition-based swing-open transform, so it must be removed
+    // (not just have its keyframes disabled) before the swing can apply.
+    var leftLeaf = document.querySelector('.door-leaf.left');
+    var rightLeaf = document.querySelector('.door-leaf.right');
+    if (leftLeaf) leftLeaf.classList.remove('knock-left');
+    if (rightLeaf) rightLeaf.classList.remove('knock-right');
+
+    // Force a synchronous style flush so the browser commits the
+    // knock-animation-removed state (transform back to its resting
+    // rotateY(0)) BEFORE the 'opened' class is added. Without this, the
+    // animation removal and the transition-triggering class change can
+    // land in the same style recalculation, and the browser jumps
+    // straight to the transition's end value instead of animating to it.
+    if (leftLeaf) void leftLeaf.offsetWidth;
+    if (rightLeaf) void rightLeaf.offsetWidth;
+
     doorScene.classList.add('opened');
     var doorWall = document.getElementById('doorWall');
     if (doorWall) doorWall.style.opacity = '0';
@@ -1155,22 +1251,54 @@
   }
 
   // ---------------------------------------------------------------------
-  // 6b. MUSIC TRACK SWITCH — crossfade from the hero track to the
-  //     secondary track the first time the visitor scrolls past the hero
-  //     into the intro section.
+  // 6b. MUSIC TRACK SWITCH — crossfades between the hero (Ganesh mantra)
+  //     track and the secondary (wedding song) track as the visitor
+  //     scrolls past the hero into the intro section, and back again if
+  //     they scroll back up. Each track resumes from wherever it was
+  //     paused rather than restarting, so the effect works repeatedly.
   // ---------------------------------------------------------------------
+  var heroSectionForAudio = document.getElementById('hero');
   var introSectionForAudio = document.getElementById('intro');
-  if (introSectionForAudio && 'IntersectionObserver' in window) {
+  if (heroSectionForAudio && introSectionForAudio && 'IntersectionObserver' in window) {
     var audioSwitchObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
+        if (!entry.isIntersecting) return;
+        if (entry.target === introSectionForAudio) {
           crossfadeToSecondaryTrack();
-          audioSwitchObserver.disconnect();
+        } else if (entry.target === heroSectionForAudio) {
+          crossfadeToHeroTrack();
         }
       });
     }, { threshold: 0.35 });
     audioSwitchObserver.observe(introSectionForAudio);
+    audioSwitchObserver.observe(heroSectionForAudio);
   }
+
+  // ---------------------------------------------------------------------
+  // 6c. DYNAMIC THEME COLOR — updates the browser chrome color (URL bar /
+  //     status bar on supporting mobile browsers) to match whichever
+  //     section is currently in view: deep maroon for the hero/intro/
+  //     footer, cream for the ceremony/venue cards.
+  // ---------------------------------------------------------------------
+  (function initDynamicThemeColor() {
+    var themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (!themeMeta) return;
+    var MAROON = '#3A0B12';
+    var CREAM = '#F6EEDD';
+    var sections = document.querySelectorAll('.snap-section');
+    if (!sections.length || !('IntersectionObserver' in window)) return;
+
+    var themeObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var isDark = entry.target.classList.contains('bg-maroon-deep') ||
+          entry.target.tagName.toLowerCase() === 'footer';
+        themeMeta.setAttribute('content', isDark ? MAROON : CREAM);
+      });
+    }, { threshold: 0.5 });
+
+    sections.forEach(function (sec) { themeObserver.observe(sec); });
+  })();
 
   // ---------------------------------------------------------------------
   // 7. INVITATION CARD OPEN
