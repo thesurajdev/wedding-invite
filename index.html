@@ -46,10 +46,16 @@
     100%{transform:scaleY(0.95) rotate(2deg);}
   }
 
-  .pulse-text{ animation:pulseText 2s ease-in-out infinite; }
+  .pulse-text{ animation:pulseText 1.6s ease-in-out infinite; }
   @keyframes pulseText{
-    0%,100%{opacity:0.5;}
-    50%{opacity:0.95;}
+    0%,100%{opacity:0.65; transform:scale(1);}
+    50%{opacity:1; transform:scale(1.06);}
+  }
+
+  .tap-glow{
+    color:#FFD166;
+    text-shadow:0 0 8px rgba(255,209,102,0.85), 0 0 18px rgba(255,209,102,0.5), 0 2px 6px rgba(0,0,0,0.6);
+    font-weight:700;
   }
 
   .scroll-tick{ animation:scrollDown 1.6s ease-in-out infinite; }
@@ -314,6 +320,25 @@
       linear-gradient(180deg, rgba(58,11,18,0.55) 0%, rgba(58,11,18,0.35) 45%, rgba(10,6,3,0.75) 100%);
     pointer-events:none;
   }
+
+  /* ---------------------------------------------------------------------
+     HERO SHLOKA — Ganesh invocation verse shown on the hero section,
+     above the invitation-card corner button, styled to read gracefully
+     over the background video without competing with it.
+     --------------------------------------------------------------------- */
+  .hero-shloka{
+    position:relative;
+    z-index:2;
+    max-width:420px;
+    color:#F6EEDD;
+    text-shadow:0 2px 12px rgba(0,0,0,0.65);
+    text-align:center;
+  }
+  .hero-shloka p{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-weight:500;
+  }
 </style>
 </head>
 <body class="bg-cream text-ink font-body">
@@ -438,7 +463,12 @@
     <video id="heroVideo" class="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
     <div class="hero-video-overlay"></div>
 
-    <div class="font-display text-xl md:text-2xl text-brass-light tracking-wide relative z-[2] mb-10 [text-shadow:0_2px_10px_rgba(0,0,0,0.6)]">॥ श्री गणेशाय नमः ॥</div>
+    <div class="font-display text-xl md:text-2xl text-brass-light tracking-wide absolute z-[2] top-6 md:top-10 left-1/2 -translate-x-1/2 [text-shadow:0_2px_10px_rgba(0,0,0,0.6)]">॥ श्री गणेशाय नमः ॥</div>
+
+    <div class="hero-shloka absolute z-[2] left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 text-center px-5">
+      <p class="text-sm md:text-base leading-relaxed">वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।</p>
+      <p class="text-sm md:text-base leading-relaxed mt-1">निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥</p>
+    </div>
 
     <button id="inviteCardBtn" type="button" aria-label="Open Invitation" class="absolute z-[20] right-4 bottom-6 md:right-10 md:bottom-10 group cursor-pointer bg-transparent border-none p-0 outline-none focus-visible:ring-2 focus-visible:ring-brass-light rounded-lg">
       <svg id="inviteCardSvg" viewBox="0 0 200 260" style="overflow:visible;" class="w-[110px] h-auto md:w-[140px] drop-shadow-[0_16px_30px_rgba(0,0,0,0.55)] transition-transform duration-300 group-hover:-translate-y-1 group-active:scale-95">
@@ -516,7 +546,7 @@
           <text id="inviteSealLetter" x="100" y="198" text-anchor="middle" font-family="'Yatra One', cursive" font-size="12.5" fill="#E9B65E" opacity="0.92" style="pointer-events:none;"></text>
         </g>
       </svg>
-      <div id="inviteLabel" class="mt-2 text-[10px] tracking-[2.5px] uppercase text-brass-light/80 pulse-text text-center transition-opacity duration-300">Tap to Open</div>
+      <div id="inviteLabel" class="mt-2 text-[11px] tracking-[2.5px] uppercase tap-glow pulse-text text-center transition-opacity duration-300">Tap to Open</div>
     </button>
   </section>
 
@@ -935,17 +965,14 @@
   }, 6000);
 
   // ---------------------------------------------------------------------
-  // 4. DOOR OPEN INTERACTION — plays a synthesized shankh (conch) sound
-  //    on open. Generated with the Web Audio API (no external audio file)
-  //    so it's self-contained and fires reliably on the user's click/tap,
-  //    which also satisfies browser autoplay-permission rules.
+  // 4. DOOR OPEN INTERACTION
   // ---------------------------------------------------------------------
   var doorFrame = document.getElementById('doorFrame');
   var opened = false;
 
   // Background music: replace with your hosted mp3 URL once available.
   // Left blank for now — playBackgroundMusic() no-ops safely if empty.
-  var BG_MUSIC_SRC = 'https://thesurajdev.github.io/wedding-invite/ganesh_mantra.mp3';
+  var BG_MUSIC_SRC = 'https://thesurajdev.github.io/wedding-invite/Ganesh_Aarti.mp3';
 
   // Prime the audio element immediately (not on click) so the browser has
   // already started buffering/decoding it well before the door is tapped —
@@ -1047,80 +1074,6 @@
     }
   }
 
-  function playShankhSound() {
-    try {
-      var AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      var ctx = new AudioCtx();
-      var now = ctx.currentTime;
-      var duration = 2.6;
-      var baseFreq = 146; // a deep, resonant horn-like pitch
-
-      // Master envelope: quick swell in like a breath, held, then a slow fade.
-      var master = ctx.createGain();
-      master.gain.setValueAtTime(0.0001, now);
-      master.gain.exponentialRampToValueAtTime(0.5, now + 0.28);
-      master.gain.setValueAtTime(0.5, now + duration * 0.55);
-      master.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-      master.connect(ctx.destination);
-
-      // Warm lowpass so the harmonics blend into a rounded, shell-like tone.
-      var filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1200, now);
-      filter.frequency.exponentialRampToValueAtTime(600, now + duration);
-      filter.connect(master);
-
-      // Fundamental + a few harmonics for a horn-like richness, with a
-      // gentle vibrato on the fundamental to mimic breath control.
-      [1, 2, 2.98, 4].forEach(function (mult, i) {
-        var osc = ctx.createOscillator();
-        osc.type = i === 0 ? 'sawtooth' : 'sine';
-        osc.frequency.setValueAtTime(baseFreq * mult, now);
-
-        var g = ctx.createGain();
-        g.gain.value = i === 0 ? 1 : 0.32 / mult;
-
-        if (i === 0) {
-          var lfo = ctx.createOscillator();
-          lfo.frequency.value = 4.5;
-          var lfoGain = ctx.createGain();
-          lfoGain.gain.value = 3;
-          lfo.connect(lfoGain);
-          lfoGain.connect(osc.frequency);
-          lfo.start(now);
-          lfo.stop(now + duration);
-        }
-
-        osc.connect(g);
-        g.connect(filter);
-        osc.start(now);
-        osc.stop(now + duration + 0.1);
-      });
-
-      // A touch of filtered noise for the breathy texture of a blown shell.
-      var bufferSize = Math.floor(ctx.sampleRate * duration);
-      var noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      var data = noiseBuffer.getChannelData(0);
-      for (var i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.15;
-      var noise = ctx.createBufferSource();
-      noise.buffer = noiseBuffer;
-      var noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.value = baseFreq * 2;
-      noiseFilter.Q.value = 0.7;
-      var noiseGain = ctx.createGain();
-      noiseGain.gain.value = 0.4;
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(master);
-      noise.start(now);
-      noise.stop(now + duration);
-    } catch (err) {
-      console.error('Shankh sound could not be played.', err);
-    }
-  }
-
   function openDoor() {
     if (opened) return;
     opened = true;
@@ -1128,7 +1081,6 @@
     // the door begins animating rather than after the visual work is queued.
     playBackgroundMusic();
     primeSecondaryTrackPlayback();
-    playShankhSound();
     doorScene.classList.add('opened');
     var doorWall = document.getElementById('doorWall');
     if (doorWall) doorWall.style.opacity = '0';
