@@ -647,6 +647,9 @@
 <audio id="bgMusic" loop preload="auto" playsinline>
   <source src="https://thesurajdev.github.io/wedding-invite/Ganesh_Aarti.mp3" type="audio/mpeg">
 </audio>
+<audio id="bgMusicSecondary" loop preload="auto" playsinline>
+  <source src="https://thesurajdev.github.io/wedding-invite/wedding_song.mp3" type="audio/mpeg">
+</audio>
 
 <!-- ================= DOOR SCENE ================= -->
 <div id="door-scene" class="fixed inset-0 z-[900]">
@@ -955,6 +958,75 @@
     bgAudioEl.load();
   }
 
+  // Secondary track — takes over (with a crossfade) the first time the
+  // visitor scrolls past the hero into the intro section.
+  var BG_MUSIC_SECONDARY_SRC = 'https://thesurajdev.github.io/wedding-invite/wedding_song.mp3';
+  var bgAudioSecondaryEl = document.getElementById('bgMusicSecondary');
+  if (bgAudioSecondaryEl && BG_MUSIC_SECONDARY_SRC) {
+    bgAudioSecondaryEl.src = BG_MUSIC_SECONDARY_SRC;
+    bgAudioSecondaryEl.volume = 0;
+    bgAudioSecondaryEl.load();
+  }
+  var TARGET_VOLUME = 0.6;
+  var CROSSFADE_MS = 1500;
+  var tracksSwitched = false;
+
+  // Starts the secondary track immediately at volume 0, in parallel with
+  // the primary track, so it is already playing (not just loaded) by the
+  // time the scroll trigger fires — the "switch" then becomes a pure
+  // volume crossfade with zero start-up latency instead of waiting on a
+  // fresh .play() call at switch time.
+  function primeSecondaryTrackPlayback() {
+    if (!bgAudioSecondaryEl || !BG_MUSIC_SECONDARY_SRC) return;
+    bgAudioSecondaryEl.volume = 0;
+    var playPromise = bgAudioSecondaryEl.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(function (err) {
+        console.warn('Secondary background track could not pre-start; will attempt again on switch.', err);
+      });
+    }
+  }
+
+  function crossfadeToSecondaryTrack() {
+    if (tracksSwitched) return;
+    if (!bgAudioSecondaryEl || !BG_MUSIC_SECONDARY_SRC) return;
+    tracksSwitched = true;
+
+    var startPlaying = function () {
+      // If pre-starting earlier succeeded, this is a no-op (already
+      // playing); if it was blocked, this is the fallback attempt.
+      if (bgAudioSecondaryEl.paused) {
+        var playPromise = bgAudioSecondaryEl.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(function (err) {
+            console.warn('Secondary background track autoplay was blocked.', err);
+          });
+        }
+      }
+
+      var steps = 30;
+      var stepMs = CROSSFADE_MS / steps;
+      var i = 0;
+      var fadeTimer = setInterval(function () {
+        i++;
+        var t = i / steps;
+        bgAudioSecondaryEl.volume = Math.min(TARGET_VOLUME, TARGET_VOLUME * t);
+        if (bgAudioEl) {
+          bgAudioEl.volume = Math.max(0, TARGET_VOLUME * (1 - t));
+        }
+        if (i >= steps) {
+          clearInterval(fadeTimer);
+          if (bgAudioEl) {
+            bgAudioEl.pause();
+            bgAudioEl.volume = TARGET_VOLUME; // reset in case it's ever resumed elsewhere
+          }
+        }
+      }, stepMs);
+    };
+
+    startPlaying();
+  }
+
   function playBackgroundMusic() {
     if (!BG_MUSIC_SRC) return;
     var audio = bgAudioEl || document.getElementById('bgMusic');
@@ -1055,6 +1127,7 @@
     // Fire music first, before any class changes, so it starts the instant
     // the door begins animating rather than after the visual work is queued.
     playBackgroundMusic();
+    primeSecondaryTrackPlayback();
     playShankhSound();
     doorScene.classList.add('opened');
     var doorWall = document.getElementById('doorWall');
@@ -1127,6 +1200,24 @@
     parallaxSections.forEach(function (sec) { revealObserver.observe(sec); });
   } else {
     parallaxSections.forEach(function (sec) { sec.classList.add('in-view'); });
+  }
+
+  // ---------------------------------------------------------------------
+  // 6b. MUSIC TRACK SWITCH — crossfade from the hero track to the
+  //     secondary track the first time the visitor scrolls past the hero
+  //     into the intro section.
+  // ---------------------------------------------------------------------
+  var introSectionForAudio = document.getElementById('intro');
+  if (introSectionForAudio && 'IntersectionObserver' in window) {
+    var audioSwitchObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          crossfadeToSecondaryTrack();
+          audioSwitchObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.35 });
+    audioSwitchObserver.observe(introSectionForAudio);
   }
 
   // ---------------------------------------------------------------------
