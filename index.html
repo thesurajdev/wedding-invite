@@ -386,10 +386,14 @@
   .hero-shloka{
     position:relative;
     z-index:2;
-    max-width:420px;
+    max-width:none;
+    width:max-content;
     color:#F6EEDD;
     text-shadow:0 2px 12px rgba(0,0,0,0.65);
     text-align:center;
+  }
+  @media (min-width:768px){
+    .hero-shloka{ max-width:420px; }
   }
   .hero-shloka p{
     font-family:'Cormorant Garamond', serif;
@@ -617,15 +621,15 @@
     <video id="heroVideo" class="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
     <div class="hero-video-overlay"></div>
 
-    <div class="sanskrit-invocation absolute z-[2] top-6 md:top-10 left-1/2 -translate-x-1/2">
+    <div class="sanskrit-invocation absolute z-[2] top-6 md:top-10 left-1/2 -translate-x-1/2 px-4 sm:px-6 whitespace-nowrap">
       <span class="om-dot"></span>
-      <span class="font-display text-xl md:text-2xl text-brass-light tracking-wide [text-shadow:0_2px_10px_rgba(0,0,0,0.6)]">॥ श्री गणेशाय नमः ॥</span>
+      <span class="font-display text-lg sm:text-xl md:text-2xl text-brass-light tracking-wide [text-shadow:0_2px_10px_rgba(0,0,0,0.6)]">॥ श्री गणेशाय नमः ॥</span>
       <span class="om-dot"></span>
     </div>
 
-    <div class="hero-shloka shloka-panel absolute z-[2] left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 text-center mx-5">
-      <p class="text-sm md:text-base leading-relaxed">वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।</p>
-      <p class="text-sm md:text-base leading-relaxed mt-1">निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥</p>
+    <div class="hero-shloka shloka-panel absolute z-[2] left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 text-center max-w-[92vw] px-4 sm:px-7">
+      <p class="text-[11px] sm:text-sm md:text-base leading-relaxed whitespace-nowrap">वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।</p>
+      <p class="text-[11px] sm:text-sm md:text-base leading-relaxed mt-1 whitespace-nowrap">निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥</p>
     </div>
 
     <button id="inviteCardBtn" type="button" aria-label="Open Invitation" class="absolute z-[20] right-4 bottom-6 md:right-10 md:bottom-10 group cursor-pointer bg-transparent border-none p-0 outline-none focus-visible:ring-2 focus-visible:ring-brass-light rounded-lg">
@@ -714,11 +718,11 @@
     <div class="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_40%,_rgba(58,11,18,0.2),_rgba(10,6,3,0.55)_75%)]"></div>
     <div id="introPetals" class="petals-layer z-[4]"></div>
 
-    <div class="couple-slide-item from-left hidden md:block absolute z-[3] left-6 lg:left-16 top-1/2 -translate-y-1/2 w-[160px] lg:w-[200px]">
-      <img src="https://thesurajdev.github.io/wedding-invite/groom.webp" alt="सूरज" loading="lazy" class="w-full h-auto">
+    <div class="couple-slide-item from-left hidden md:block absolute z-[3] left-0 bottom-0 top-0 w-[26%] lg:w-[30%] max-w-[420px]">
+      <img src="https://thesurajdev.github.io/wedding-invite/groom.webp" alt="सूरज" loading="lazy" class="w-full h-full object-cover object-top">
     </div>
-    <div class="couple-slide-item from-right hidden md:block absolute z-[3] right-6 lg:right-16 top-1/2 -translate-y-1/2 w-[160px] lg:w-[200px]">
-      <img src="https://thesurajdev.github.io/wedding-invite/bride.webp" alt="पलक" loading="lazy" class="w-full h-auto">
+    <div class="couple-slide-item from-right hidden md:block absolute z-[3] right-0 bottom-0 top-0 w-[26%] lg:w-[30%] max-w-[420px]">
+      <img src="https://thesurajdev.github.io/wedding-invite/bride.webp" alt="पलक" loading="lazy" class="w-full h-full object-cover object-top">
     </div>
 
     <h1 id="introTitle" class="js-parallax-item font-display text-[clamp(2.4rem,7vw,4.2rem)] text-cream tracking-wide relative z-[2] [text-shadow:0_2px_16px_rgba(0,0,0,0.7)]"></h1>
@@ -884,7 +888,7 @@
         </div>
       </div>
 
-      <div id="doorSeam" class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[6px] bg-black/70 blur-[1px] z-[2] pointer-events-none" style="transition:opacity 1.4s cubic-bezier(.45,0,.2,1);"></div>
+      <div id="doorSeam" class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[6px] z-[2] pointer-events-none opacity-0"></div>
     </div>
 
     <div class="knock-hint absolute z-[6] left-1/2 bottom-10 md:bottom-14 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
