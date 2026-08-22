@@ -62,7 +62,12 @@
 
   #preloader.hide{ opacity:0; visibility:hidden; pointer-events:none; }
 
-  #door-scene{ opacity:0; visibility:hidden; transition:opacity .6s ease, visibility .6s ease; }
+  /* Door scene is visible by DEFAULT (not opacity:0) so there is never a
+     gap between first paint and JS execution during which the hero behind
+     it could flash into view. JS only ever needs to fade it OUT (via
+     .dismiss) once the preloader finishes; the .show class is kept for
+     backwards compatibility but is no longer required to reveal it. */
+  #door-scene{ opacity:1; visibility:visible; transition:opacity .6s ease, visibility .6s ease; }
   #door-scene.show{ opacity:1; visibility:visible; }
   #door-scene.dismiss{ opacity:0; visibility:hidden; transition:opacity 1s ease, visibility 1s ease; }
 
@@ -287,6 +292,28 @@
   .floral-corner.fc-tr{ top:-14px; right:-14px; transform:scaleX(-1); }
   .floral-corner.fc-br{ bottom:-14px; right:-14px; transform:scale(-1); }
   .floral-corner.fc-bl{ bottom:-14px; left:-14px; transform:scaleY(-1); }
+
+  /* ---------------------------------------------------------------------
+     HERO BACKGROUND VIDEO — full-bleed video behind the hero content.
+     Two <source> elements with media queries let the browser pick the
+     mobile or desktop clip; a dark maroon overlay keeps text readable.
+     --------------------------------------------------------------------- */
+  .hero-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:0;
+  }
+  .hero-video-overlay{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    background:
+      linear-gradient(180deg, rgba(58,11,18,0.55) 0%, rgba(58,11,18,0.35) 45%, rgba(10,6,3,0.75) 100%);
+    pointer-events:none;
+  }
 </style>
 </head>
 <body class="bg-cream text-ink font-body">
@@ -301,8 +328,8 @@
 {
   "side": "groom",
   "couple": {
-    "brideName": "पलक गोला",
-    "groomName": "सूरज देव",
+    "brideName": "पलक",
+    "groomName": "सूरज",
     "coupleShort": "Palak weds Suraj"
   },
   "hosts": {
@@ -404,6 +431,13 @@
 
   <!-- ============ HERO SECTION ============ -->
   <section id="hero" class="snap-section relative min-h-screen flex flex-col items-center justify-center text-center px-5 py-16 overflow-hidden bg-maroon-deep">
+    <!-- Background video: mobile clip on small screens, desktop clip on larger screens.
+         Source selection is done in JS (see script below) rather than relying on
+         <source media="..."> switching, which several mobile browsers ignore for
+         <video>, causing the clip to silently fail to load. -->
+    <video id="heroVideo" class="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
+    <div class="hero-video-overlay"></div>
+
     <div class="font-display text-xl md:text-2xl text-brass-light tracking-wide relative z-[2] mb-10 [text-shadow:0_2px_10px_rgba(0,0,0,0.6)]">॥ श्री गणेशाय नमः ॥</div>
 
     <button id="inviteCardBtn" type="button" aria-label="Open Invitation" class="absolute z-[20] right-4 bottom-6 md:right-10 md:bottom-10 group cursor-pointer bg-transparent border-none p-0 outline-none focus-visible:ring-2 focus-visible:ring-brass-light rounded-lg">
@@ -607,6 +641,13 @@
   </footer>
 </div>
 
+<!-- ================= BACKGROUND MUSIC =================
+     Plays automatically once the door is opened. Replace AUDIO_SRC_URL
+     in the script below with your hosted .mp3 link. -->
+<audio id="bgMusic" loop preload="auto" playsinline>
+  <source src="https://thesurajdev.github.io/wedding-invite/Ganesh_Aarti.mp3" type="audio/mpeg">
+</audio>
+
 <!-- ================= DOOR SCENE ================= -->
 <div id="door-scene" class="fixed inset-0 z-[900]">
   <div class="temple-gate absolute inset-0 cursor-pointer" id="doorFrame" role="button" tabindex="0" aria-label="Open the door to view invitation">
@@ -798,6 +839,60 @@
   setText('footerCoupleDate', [CONFIG.couple.coupleShort, CONFIG.event.dateDisplay].filter(Boolean).join(' · '));
 
   // ---------------------------------------------------------------------
+  // 2b. HERO BACKGROUND VIDEO — pick mobile vs desktop clip via JS (more
+  //     reliable across browsers than <source media="..."> on <video>,
+  //     which several mobile browsers ignore), then force playback since
+  //     some browsers need an explicit .play() call even with autoplay set.
+  // ---------------------------------------------------------------------
+  (function initHeroVideo() {
+    var video = document.getElementById('heroVideo');
+    if (!video) return;
+
+    var DESKTOP_SRC = 'https://thesurajdev.github.io/wedding-invite/desktop_arti.webm';
+    var MOBILE_SRC = 'https://thesurajdev.github.io/wedding-invite/mobile_arti.webm';
+    var isDesktop = window.innerWidth >= 768;
+    video.src = isDesktop ? DESKTOP_SRC : MOBILE_SRC;
+
+    video.addEventListener('error', function () {
+      console.error('Hero video failed to load:', video.currentSrc || video.src, video.error);
+    });
+
+    function tryPlay() {
+      var playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(function (err) {
+          console.warn('Hero video autoplay was blocked, will retry on first user interaction.', err);
+          var resumeOnInteract = function () {
+            video.play().catch(function () {});
+            document.removeEventListener('touchstart', resumeOnInteract);
+            document.removeEventListener('click', resumeOnInteract);
+          };
+          document.addEventListener('touchstart', resumeOnInteract, { once: true, passive: true });
+          document.addEventListener('click', resumeOnInteract, { once: true });
+        });
+      }
+    }
+    video.addEventListener('loadedmetadata', tryPlay);
+    tryPlay();
+
+    // Re-evaluate on resize/orientation change so rotating a phone (or
+    // resizing a desktop window across the breakpoint) swaps the clip.
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        var nowDesktop = window.innerWidth >= 768;
+        var wanted = nowDesktop ? DESKTOP_SRC : MOBILE_SRC;
+        if (video.src !== wanted && !video.src.endsWith(wanted)) {
+          var wasPlaying = !video.paused;
+          video.src = wanted;
+          if (wasPlaying) tryPlay();
+        }
+      }, 300);
+    });
+  })();
+
+  // ---------------------------------------------------------------------
   // 3. PRELOADER
   // ---------------------------------------------------------------------
   var fill = document.getElementById('loadFill');
@@ -844,6 +939,41 @@
   // ---------------------------------------------------------------------
   var doorFrame = document.getElementById('doorFrame');
   var opened = false;
+
+  // Background music: replace with your hosted mp3 URL once available.
+  // Left blank for now — playBackgroundMusic() no-ops safely if empty.
+  var BG_MUSIC_SRC = 'https://thesurajdev.github.io/wedding-invite/Ganesh_Aarti.mp3';
+
+  // Prime the audio element immediately (not on click) so the browser has
+  // already started buffering/decoding it well before the door is tapped —
+  // this is what makes playback start instantly in sync with the door
+  // animation instead of lagging behind while the file loads.
+  var bgAudioEl = document.getElementById('bgMusic');
+  if (bgAudioEl && BG_MUSIC_SRC) {
+    bgAudioEl.src = BG_MUSIC_SRC;
+    bgAudioEl.volume = 0.6;
+    bgAudioEl.load();
+  }
+
+  function playBackgroundMusic() {
+    if (!BG_MUSIC_SRC) return;
+    var audio = bgAudioEl || document.getElementById('bgMusic');
+    if (!audio) return;
+    try {
+      if (!audio.src) audio.src = BG_MUSIC_SRC;
+      audio.volume = 0.6;
+      // currentTime reset in case a prior blocked-autoplay attempt left it
+      // partway through a buffered-but-unplayed state.
+      var playPromise = audio.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(function (err) {
+          console.warn('Background music autoplay was blocked; it will start on next interaction.', err);
+        });
+      }
+    } catch (err) {
+      console.error('Background music could not be played.', err);
+    }
+  }
 
   function playShankhSound() {
     try {
@@ -922,6 +1052,9 @@
   function openDoor() {
     if (opened) return;
     opened = true;
+    // Fire music first, before any class changes, so it starts the instant
+    // the door begins animating rather than after the visual work is queued.
+    playBackgroundMusic();
     playShankhSound();
     doorScene.classList.add('opened');
     var doorWall = document.getElementById('doorWall');
