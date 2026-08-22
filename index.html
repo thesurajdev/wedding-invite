@@ -39,13 +39,6 @@
   html, body{ height:100%; }
   body{ overflow-x:hidden; font-size:17px; line-height:1.7; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; font-variant-numeric:lining-nums proportional-nums; }
 
-  /* ---------------------------------------------------------------------
-     TRUE VIEWPORT HEIGHT — min-h-screen (100vh) doesn't account for
-     mobile browser chrome (URL bar) showing/hiding as the user scrolls,
-     leaving a gap or cutting off content. 100dvh (dynamic viewport
-     height) tracks the real visible area; --vh is a JS-computed fallback
-     for browsers that don't support dvh yet.
-     --------------------------------------------------------------------- */
   .min-h-screen{ min-height:100vh !important; }
   .min-h-screen{ min-height:calc(var(--vh, 1vh) * 100) !important; }
   @supports (height: 100dvh){
@@ -85,11 +78,6 @@
 
   #preloader.hide{ opacity:0; visibility:hidden; pointer-events:none; }
 
-  /* Door scene is visible by DEFAULT (not opacity:0) so there is never a
-     gap between first paint and JS execution during which the hero behind
-     it could flash into view. JS only ever needs to fade it OUT (via
-     .dismiss) once the preloader finishes; the .show class is kept for
-     backwards compatibility but is no longer required to reveal it. */
   #door-scene{ opacity:1; visibility:visible; transition:opacity .6s ease, visibility .6s ease; }
   #door-scene.show{ opacity:1; visibility:visible; }
   #door-scene.dismiss{ opacity:0; visibility:hidden; transition:opacity 1s ease, visibility 1s ease; }
@@ -159,12 +147,6 @@
   .door-leaf.right::after{ background:linear-gradient(270deg, transparent 55%, rgba(0,0,0,0.55) 100%); }
   #door-scene.opened .door-leaf::after{ opacity:1; }
 
-  /* ---------------------------------------------------------------------
-     KNOCK-KNOCK HINT — a periodic little shake/rattle on both door
-     leaves (as if someone on the inside is knocking) plus a pulsing
-     "Knock to Open" label, so the guest understands the door is
-     tappable. Both stop the moment the door starts opening.
-     --------------------------------------------------------------------- */
   .door-leaf.knock-left{ animation:knockLeft 3.6s ease-in-out infinite; }
   .door-leaf.knock-right{ animation:knockRight 3.6s ease-in-out infinite; }
   @keyframes knockLeft{
@@ -204,8 +186,6 @@
   #site{ opacity:0; visibility:hidden; }
   #site.reveal{ opacity:1; visibility:visible; }
 
-  /* No-JS / JS-failure safety net: if JS never runs, force the site visible
-     and hide the preloader + door overlay so the page is never blank. */
   html.no-js #site{ opacity:1 !important; visibility:visible !important; }
   html.no-js #preloader,
   html.no-js #door-scene{ display:none !important; }
@@ -236,9 +216,6 @@
   #inviteFlap.opened{ transform:translateY(30px) rotate(8deg); opacity:0; }
   #inviteCardInner.opened{ transform:rotate(0deg) translate(0px,-70px) scale(1.08); }
   #inviteSeal.opened{ opacity:0; transform:translateY(10px) scale(0.85); }
-  /* Sections keep their own background fully visible at all times — only
-     the content inside fades/slides up as it scrolls into view, so no
-     wrong background ever shows through mid-transition. */
   .js-parallax-item{ opacity:0; transform:translateY(24px); transition:opacity .8s ease, transform .8s cubic-bezier(.16,.8,.3,1); }
   .js-parallax-section.in-view .js-parallax-item{ opacity:1; transform:translateY(0); }
   .js-parallax-section.in-view .js-parallax-item:nth-child(1){ transition-delay:.05s; }
@@ -250,10 +227,6 @@
     .js-parallax-section, .js-parallax-item{ opacity:1 !important; transform:none !important; transition:none !important; }
   }
 
-  /* ---------------------------------------------------------------------
-     SCROLL SNAP — each section settles centered in the viewport as the
-     guest scrolls, like turning a page of the card.
-     --------------------------------------------------------------------- */
   html{
     scroll-behavior:smooth;
     scroll-snap-type:y mandatory;
@@ -266,11 +239,6 @@
     html{ scroll-behavior:auto; scroll-snap-type:none; }
   }
 
-  /* ---------------------------------------------------------------------
-     ORNATE CARD FRAME — a wedding-invitation-style double border with
-     gilded corner flourishes, reused around each content block so every
-     section reads like its own card tucked inside the invite.
-     --------------------------------------------------------------------- */
   .invite-card{
     position:relative;
     border-radius:10px;
@@ -296,8 +264,6 @@
   .invite-card.invite-card-dark::before{ border-color:rgba(240,216,150,0.3); }
   .invite-card.invite-card-dark .card-corner{ border-color:rgba(240,216,150,0.55); }
 
-  /* Gold-foil heading treatment for use on deep maroon backgrounds only
-     (needs a dark backdrop to read — never use on cream/white sections). */
   .foil-text{
     background:linear-gradient(180deg, #F4B94D 0%, #E8961F 45%, #C9A34E 75%, #8A6420 100%);
     -webkit-background-clip:text;
@@ -305,11 +271,6 @@
     color:transparent;
   }
 
-  /* ---------------------------------------------------------------------
-     FALLING PETALS — soft marigold/rose petals drifting down over the
-     names section, generated at runtime (see JS) with randomised size,
-     drift, spin and timing so no two fall the same way.
-     --------------------------------------------------------------------- */
   .petals-layer{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
   .petal{
     position:absolute;
@@ -339,11 +300,6 @@
     .petals-layer{ display:none; }
   }
 
-  /* ---------------------------------------------------------------------
-     MARIGOLD GARLAND CORNERS — small SVG flower clusters tucked into the
-     corners of key cards for an extra floral touch beyond the falling
-     petals. Purely decorative, pointer-events disabled.
-     --------------------------------------------------------------------- */
   .floral-corner{
     position:absolute;
     width:46px; height:46px;
@@ -356,11 +312,6 @@
   .floral-corner.fc-br{ bottom:-14px; right:-14px; transform:scale(-1); }
   .floral-corner.fc-bl{ bottom:-14px; left:-14px; transform:scaleY(-1); }
 
-  /* ---------------------------------------------------------------------
-     HERO BACKGROUND VIDEO — full-bleed video behind the hero content.
-     Two <source> elements with media queries let the browser pick the
-     mobile or desktop clip; a dark maroon overlay keeps text readable.
-     --------------------------------------------------------------------- */
   .hero-video{
     position:absolute;
     inset:0;
@@ -378,11 +329,6 @@
     pointer-events:none;
   }
 
-  /* ---------------------------------------------------------------------
-     HERO SHLOKA — Ganesh invocation verse shown on the hero section,
-     above the invitation-card corner button, styled to read gracefully
-     over the background video without competing with it.
-     --------------------------------------------------------------------- */
   .hero-shloka{
     position:relative;
     z-index:2;
@@ -399,14 +345,12 @@
     font-family:'Cormorant Garamond', serif;
     font-style:italic;
     font-weight:500;
+    /* Improved legibility: larger minimum size, allow natural wrapping
+       instead of forcing a single non-wrapping line on narrow phones. */
+    font-size:clamp(13px, 3.6vw, 17px);
+    white-space:normal;
   }
 
-  /* ---------------------------------------------------------------------
-     SANSKRIT TEXT BACKDROPS — themed maroon/brass panels behind the
-     "श्री गणेशाय नमः" invocation and the Ganesh shloka on the hero, so
-     the Sanskrit reads as an intentional gilded plaque against the
-     video rather than floating bare text.
-     --------------------------------------------------------------------- */
   .sanskrit-invocation{
     display:inline-flex;
     align-items:center;
@@ -456,13 +400,6 @@
   .shloka-panel::before{ top:6px; }
   .shloka-panel::after{ bottom:6px; }
 
-  /* ---------------------------------------------------------------------
-     COUPLE PHOTOS — groom's portrait slides in from the left, bride's
-     from the right, meeting at a central marigold motif. Driven by the
-     same .js-parallax-section/.in-view scroll-reveal mechanism used
-     elsewhere, but with a horizontal slide instead of the default
-     vertical one.
-     --------------------------------------------------------------------- */
   .couple-photo-frame{
     position:relative;
     border-radius:14px;
@@ -497,6 +434,45 @@
   @media (prefers-reduced-motion: reduce){
     .couple-slide-item{ opacity:1 !important; transform:none !important; transition:none !important; }
   }
+
+  /* -----------------------------------------------------------------
+     CEREMONY SECTION — MOBILE FIT
+     Tightened vertical rhythm (padding, margins, font sizes) on small
+     screens so the whole "कार्यक्रम" card — including the mobile
+     jaymala image row and the Add to Calendar button — fits within a
+     single mobile viewport without the section overflowing/clipping.
+     Desktop (sm: and up) sizing is unchanged from the original design.
+     ----------------------------------------------------------------- */
+  #ceremony-section{
+    padding-top:2rem;
+    padding-bottom:1.75rem;
+  }
+  @media (min-width:640px){
+    #ceremony-section{
+      padding-top:5rem;
+      padding-bottom:5rem;
+    }
+  }
+
+  /* -----------------------------------------------------------------
+     VISIBILITY / TEXT IMPROVEMENTS
+     - Invitation-open label gets a soft dark pill behind it so it stays
+       readable over lighter frames of the looping hero video.
+     - Footer closing line reads a touch larger so it lands as a proper
+       closing note rather than fine print.
+     ----------------------------------------------------------------- */
+  #inviteLabel{
+    background:rgba(58,11,18,0.45);
+    padding:3px 12px;
+    border-radius:999px;
+    display:inline-block;
+    -webkit-backdrop-filter:blur(2px);
+    backdrop-filter:blur(2px);
+  }
+  #footerLine{
+    font-size:clamp(1.1rem, 3vw, 1.5rem);
+    display:inline-block;
+  }
 </style>
 </head>
 <body class="bg-cream text-ink font-body">
@@ -516,66 +492,90 @@
     "coupleShort": "Palak weds Suraj"
   },
   "hosts": {
-    "groomParents": "श्री दिनेश लाल देव जी के सुपुत्र",
-    "brideParents": "श्री लोकेश कुमार गोला जी की सुपुत्री",
-    "blessingsLine": "दादा-दादी / नाना-नानी जी के आशीर्वाद सहित",
-    "invitationNote": "हार्दिक निमंत्रण"
+    "groomParents": "श्री दिनेश लाल देव एवं श्रीमती पुनीता देवी के सुपुत्र",
+    "brideParents": "श्री लोकेश कुमार गोला एवं श्रीमती पूजा देवी की सुपुत्री",
+    "blessingsLine": "",
+    "invitationNote": "सादर आमंत्रित"
   },
   "event": {
     "titleHindi": "शुभ विवाह",
-    "dateDisplay": "21 नवंबर 2026",
+    "dateDisplay": "21 November 2026, Saturday",
     "dateISO": "2026-11-21T19:00:00+05:30",
-    "timeDisplay": "शाम 7 बजे से",
-    "cityLine": "दिल्ली"
+    "timeDisplay": "सायं 7:00 बजे",
+    "cityLine": "नई दिल्ली"
   },
   "ceremony": {
     "title": "विवाह समारोह",
-    "titleEnglish": "Wedding Ceremony"
+    "titleEnglish": "WEDDING CEREMONY"
   },
   "venue": {
-    "name": "Kangna Grand Banquet",
-    "city": "Opposite Metro Pillar 695, near Uttam Nagar West Metro Station, Delhi 110059",
+    "name": "Kangana Grand Banquet",
+    "city": "Opposite Metro Pillar 695, Near Uttam Nagar West Metro Station, Delhi – 110059",
     "mapQuery": "",
     "mapLink": "https://maps.app.goo.gl/bRyBuKApFEE5hXqc8",
-    "parkingNote": "Nearest Metro: Uttam Nagar West · Valet Parking available at venue"
+    "parkingNote": "Valet parking available at venue"
   },
   "schedule": {
     "sectionEyebrow": "Wedding Events",
     "sectionTitle": "समारोह अनुसूची",
     "events": [
       {
-        "name": "Wedding Ceremony",
-        "dateDisplay": "21 November 2026",
-        "timeDisplay": "7:00 PM onwards",
-        "venueName": "Kangna Grand Banquet"
+        "title": "हल्दी समारोह",
+        "titleEnglish": "HALDI CEREMONY",
+        "dateDisplay": "20 नवंबर 2026, शुक्रवार",
+        "dateISO": "2026-11-20T11:00:00+05:30",
+        "timeDisplay": "प्रातः 11:00 बजे",
+        "venueLine": "Residence, Vikaspuri",
+        "groomImage": "https://thesurajdev.github.io/wedding-invite/groom_jaymala.webp",
+        "brideImage": ""
+      },
+      {
+        "title": "मेहंदी समारोह",
+        "titleEnglish": "MEHANDI CEREMONY",
+        "dateDisplay": "20 नवंबर 2026, शुक्रवार",
+        "dateISO": "2026-11-20T18:00:00+05:30",
+        "timeDisplay": "सायं 6:00 बजे",
+        "venueLine": "Residence, Vikaspuri",
+        "groomImage": "",
+        "brideImage": "https://thesurajdev.github.io/wedding-invite/bride_jaymala.webp"
+      },
+      {
+        "title": "विवाह समारोह",
+        "titleEnglish": "WEDDING CEREMONY",
+        "dateDisplay": "21 नवंबर 2026, शनिवार",
+        "dateISO": "2026-11-21T19:00:00+05:30",
+        "timeDisplay": "सायं 7:00 बजे",
+        "venueLine": "Kangana Grand Banquet, Delhi",
+        "groomImage": "https://thesurajdev.github.io/wedding-invite/groom_jaymala.webp",
+        "brideImage": "https://thesurajdev.github.io/wedding-invite/bride_jaymala.webp"
       }
     ]
   },
   "dressCode": {
-    "sectionTitle": "Dress Code",
-    "note": "Traditional Indian Attire",
-    "detail": "We'd love to see you in festive traditional colours — reds, golds, and jewel tones welcome!"
+    "sectionTitle": "परिधान",
+    "note": "पारंपरिक भारतीय परिधान",
+    "detail": "इस मंगल अवसर की शोभा बढ़ाने हेतु पारंपरिक एवं उत्सव के रंगों में सुसज्जित होकर पधारने का विशेष निमंत्रण है।"
   },
   "rsvp": {
     "deadlineDisplay": "14 नवंबर 2026",
-    "introText": "Kindly confirm your presence by 14 November 2026, so we can prepare a warm welcome for you.",
+    "introText": "कृपया अपनी उपस्थिति की पुष्टि 14 नवंबर 2026 तक करें, ताकि हम आपके स्वागत की समुचित व्यवस्था कर सकें।",
     "whatsappNumber": "919999999999",
-    "whatsappMessage": "नमस्ते! मैं सूरज और पलक की शादी के लिए अपनी उपस्थिति की पुष्टि करना चाहता/चाहती हूं।"
+    "whatsappMessage": "नमस्ते! मैं सूरज और पलक के शुभ विवाह में अपनी उपस्थिति की पुष्टि करना चाहता/चाहती हूं।"
   },
   "contacts": {
-    "sectionTitle": "Contact Us",
+    "sectionTitle": "संपर्क सूत्र",
     "list": [
-      { "label": "Groom's Side", "name": "Dinesh Lal Dev", "phone": "919999999999" },
-      { "label": "Bride's Side", "name": "Lokesh Kumar Gola", "phone": "919999999999" }
+      { "label": "वर पक्ष", "name": "दिनेश लाल देव", "phone": "919999999999" },
+      { "label": "वधू पक्ष", "name": "लोकेश कुमार गोला", "phone": "919999999999" }
     ]
   },
   "faq": {
-    "sectionTitle": "FAQs",
+    "sectionTitle": "सामान्य प्रश्न",
     "items": [
-      { "q": "What is the dress code?", "a": "Traditional Indian attire is recommended — festive colours welcome." },
-      { "q": "Is parking available?", "a": "Yes, parking is available at the venue. Nearest metro station is Uttam Nagar West." },
-      { "q": "Can I bring children?", "a": "Yes, children are most welcome to join the celebrations." },
-      { "q": "By when should I RSVP?", "a": "Please confirm by 14 November 2026 so we can plan your warm welcome." }
+      { "q": "परिधान क्या रखें?", "a": "पारंपरिक भारतीय परिधान अनुशंसित है — उत्सव के रंगों में पधारें।" },
+      { "q": "क्या पार्किंग की सुविधा उपलब्ध है?", "a": "जी हाँ, वेन्यू पर पार्किंग उपलब्ध है। निकटतम मेट्रो स्टेशन उत्तम नगर वेस्ट है।" },
+      { "q": "क्या बच्चों को साथ लाया जा सकता है?", "a": "जी हाँ, बच्चों का समारोह में हार्दिक स्वागत है।" },
+      { "q": "उपस्थिति की पुष्टि कब तक करें?", "a": "कृपया 14 नवंबर 2026 तक पुष्टि करें, ताकि हम आपके स्वागत की तैयारी कर सकें।" }
     ]
   },
   "gallery": {
@@ -585,7 +585,7 @@
     "images": []
   },
   "footer": {
-    "line": "आपकी उपस्थिति ही हमारा सबसे बड़ा आशीर्वाद है"
+    "line": "आपका शुभ आगमन ही हमारे लिए सबसे बड़ा आशीर्वाद होगा"
   }
 }
 </script>
@@ -614,10 +614,6 @@
 
   <!-- ============ HERO SECTION ============ -->
   <section id="hero" class="snap-section relative min-h-screen flex flex-col items-center justify-center text-center px-5 py-16 overflow-hidden bg-maroon-deep">
-    <!-- Background video: mobile clip on small screens, desktop clip on larger screens.
-         Source selection is done in JS (see script below) rather than relying on
-         <source media="..."> switching, which several mobile browsers ignore for
-         <video>, causing the clip to silently fail to load. -->
     <video id="heroVideo" class="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
     <div class="hero-video-overlay"></div>
 
@@ -628,8 +624,8 @@
     </div>
 
     <div class="hero-shloka shloka-panel absolute z-[2] left-1/2 -translate-x-1/2 bottom-40 md:bottom-32 text-center max-w-[92vw] px-4 sm:px-7">
-      <p class="text-[11px] sm:text-sm md:text-base leading-relaxed whitespace-nowrap">वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।</p>
-      <p class="text-[11px] sm:text-sm md:text-base leading-relaxed mt-1 whitespace-nowrap">निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥</p>
+      <p class="leading-relaxed">वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।</p>
+      <p class="leading-relaxed mt-1">निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥</p>
     </div>
 
     <button id="inviteCardBtn" type="button" aria-label="Open Invitation" class="absolute z-[20] right-4 bottom-6 md:right-10 md:bottom-10 group cursor-pointer bg-transparent border-none p-0 outline-none focus-visible:ring-2 focus-visible:ring-brass-light rounded-lg">
@@ -708,7 +704,7 @@
           <text id="inviteSealLetter" x="100" y="198" text-anchor="middle" font-family="'Yatra One', cursive" font-size="12.5" fill="#E9B65E" opacity="0.92" style="pointer-events:none;"></text>
         </g>
       </svg>
-      <div id="inviteLabel" class="mt-2 text-[11px] tracking-[2.5px] uppercase tap-glow pulse-text text-center transition-opacity duration-300">Tap to Open</div>
+      <div id="inviteLabel" class="mt-2 text-[11px] tracking-[2.5px] uppercase tap-glow pulse-text text-center transition-opacity duration-300">Open Invitation</div>
     </button>
   </section>
 
@@ -725,7 +721,11 @@
       <img src="https://thesurajdev.github.io/wedding-invite/bride.webp" alt="पलक" loading="lazy" class="w-full h-full object-cover object-top">
     </div>
 
-    <h1 id="introTitle" class="js-parallax-item font-display text-[clamp(2.4rem,7vw,4.2rem)] text-cream tracking-wide relative z-[2] [text-shadow:0_2px_16px_rgba(0,0,0,0.7)]"></h1>
+    <p class="js-parallax-item text-[11px] sm:text-xs tracking-[3px] uppercase text-brass-light/85 relative z-[2] mb-3 [text-shadow:0_2px_10px_rgba(0,0,0,0.6)]">परमपिता परमेश्वर एवं गुरुजनों के आशीर्वाद से</p>
+
+    <p class="js-parallax-item font-serif italic text-cream/90 text-sm sm:text-base relative z-[2] [text-shadow:0_2px_10px_rgba(0,0,0,0.6)]">हम अपने विवाह के इस पावन अवसर पर आपको सादर आमंत्रित करते हैं</p>
+
+    <h1 id="introTitle" class="js-parallax-item font-display text-[clamp(2.4rem,7vw,4.2rem)] text-cream tracking-wide relative z-[2] mt-4 [text-shadow:0_2px_16px_rgba(0,0,0,0.7)]"></h1>
 
     <p id="introNames" class="js-parallax-item font-display text-[clamp(1.7rem,4.2vw,2.7rem)] mt-5 text-cream tracking-wide relative z-[2] [text-shadow:0_2px_14px_rgba(0,0,0,0.7)]"></p>
 
@@ -742,40 +742,54 @@
     </div>
   </section>
 
-  <!-- ============ CEREMONY DETAIL SECTION ============ -->
-  <section class="js-parallax-section snap-section relative min-h-screen flex flex-col items-center justify-center max-w-4xl mx-auto text-center px-5 py-20 overflow-hidden">
+  <!-- ============ CEREMONY DETAIL SECTION (multi-event) ============ -->
+  <section id="ceremony-section" class="js-parallax-section snap-section relative min-h-screen flex flex-col items-center justify-center max-w-4xl mx-auto text-center px-5 overflow-hidden">
     <div class="absolute inset-0 -z-10 pointer-events-none">
       <div class="absolute inset-0 opacity-60" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><g fill=%22none%22 stroke=%22%23C9A34E%22 stroke-opacity=%220.18%22 stroke-width=%221%22><circle cx=%2260%22 cy=%2260%22 r=%2224%22/><circle cx=%2260%22 cy=%2260%22 r=%2233%22/></g></svg>'); background-size:140px 140px;"></div>
       <div class="absolute left-1/2 top-8 -translate-x-1/2 w-[320px] h-[320px] rounded-full bg-[radial-gradient(circle,_rgba(232,150,31,0.10),_transparent_70%)]"></div>
     </div>
 
-    <div class="js-parallax-item text-xs tracking-[4px] uppercase text-marigold mb-2">Event Details</div>
-    <h2 class="js-parallax-item font-display text-[clamp(1.7rem,4vw,2.4rem)] text-maroon-deep mb-3">कार्यक्रम</h2>
-    <div class="js-parallax-item w-16 h-0.5 bg-marigold/70 mx-auto mb-12"></div>
+    <!-- Desktop side images — swapped per event via JS, cross-fades in place -->
+    <div id="ceremonySideImgLeft" class="hidden md:block absolute z-[1] left-0 lg:left-4 top-1/2 -translate-y-1/2 w-[150px] lg:w-[190px] transition-opacity duration-500">
+      <img id="ceremonySideImgLeftEl" src="" alt="सूरज" loading="lazy" class="w-full h-auto">
+    </div>
+    <div id="ceremonySideImgRight" class="hidden md:block absolute z-[1] right-0 lg:right-4 top-1/2 -translate-y-1/2 w-[150px] lg:w-[190px] transition-opacity duration-500">
+      <img id="ceremonySideImgRightEl" src="" alt="पलक" loading="lazy" class="w-full h-auto">
+    </div>
 
-    <div class="js-parallax-item max-w-sm mx-auto">
-      <div class="invite-card relative bg-gradient-to-b from-white to-[#FBF6E9] rounded-[10px] px-8 pt-14 pb-10 border border-brass/30">
+    <!-- Mobile-only image row — swapped per event via JS -->
+    <div id="ceremonyMobileImgRow" class="js-parallax-item flex md:hidden items-center justify-center gap-3 mb-3 transition-opacity duration-500">
+      <img id="ceremonyMobileImgLeftEl" src="" alt="सूरज" loading="lazy" class="w-[78px] sm:w-[110px] h-auto">
+      <img id="ceremonyMobileImgRightEl" src="" alt="पलक" loading="lazy" class="w-[78px] sm:w-[110px] h-auto">
+    </div>
+
+    <div class="js-parallax-item text-[11px] sm:text-xs tracking-[4px] uppercase text-marigold mb-1 sm:mb-2">Event Details</div>
+    <h2 class="js-parallax-item font-display text-[clamp(1.5rem,4vw,2.4rem)] text-maroon-deep mb-2 sm:mb-3">कार्यक्रम</h2>
+    <div class="js-parallax-item w-16 h-0.5 bg-marigold/70 mx-auto mb-5 sm:mb-10"></div>
+
+    <div class="js-parallax-item max-w-sm mx-auto w-full">
+      <div id="ceremonyCard" class="invite-card relative bg-gradient-to-b from-white to-[#FBF6E9] rounded-[10px] px-5 sm:px-8 pt-9 sm:pt-14 pb-5 sm:pb-10 border border-brass/30 transition-opacity duration-400">
         <span class="card-corner tl"></span>
         <span class="card-corner tr"></span>
         <span class="card-corner bl"></span>
         <span class="card-corner br"></span>
 
-        <div class="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-b from-maroon to-maroon-deep shadow-[0_8px_18px_rgba(58,11,18,0.35)] flex items-center justify-center border-2 border-brass-light">
-          <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none">
+        <div class="absolute -top-5 sm:-top-7 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gradient-to-b from-maroon to-maroon-deep shadow-[0_8px_18px_rgba(58,11,18,0.35)] flex items-center justify-center border-2 border-brass-light">
+          <svg viewBox="0 0 24 24" class="w-4.5 h-4.5 sm:w-6 sm:h-6" fill="none">
             <circle cx="12" cy="14" r="7" stroke="#F0D896" stroke-width="1.6"/>
             <path d="M12 7 L9 2 H15 L12 7Z" fill="#F4B94D" stroke="#C9A34E" stroke-width="0.6"/>
           </svg>
         </div>
 
-        <h3 id="ceremonyTitle" class="font-display text-2xl text-maroon mb-1 mt-1"></h3>
-        <p id="ceremonyTitleEnglish" class="text-[11px] tracking-[3px] uppercase text-marigold/90 mb-5"></p>
+        <h3 id="ceremonyTitle" class="font-display text-lg sm:text-2xl text-maroon mb-1 mt-1"></h3>
+        <p id="ceremonyTitleEnglish" class="text-[11px] sm:text-[12px] tracking-[2px] uppercase text-marigold/90 mb-2.5 sm:mb-5"></p>
 
-        <div class="w-10 h-px bg-brass/50 mx-auto mb-5"></div>
+        <div class="w-10 h-px bg-brass/50 mx-auto mb-2.5 sm:mb-5"></div>
 
-        <p id="ceremonyDate" class="font-body font-semibold text-lg sm:text-xl text-ink mb-1 tracking-wide"></p>
-        <p id="ceremonyTime" class="text-base text-ink/70 tracking-wide mb-5"></p>
+        <p id="ceremonyDate" class="font-body font-semibold text-base sm:text-xl text-ink mb-1 tracking-wide"></p>
+        <p id="ceremonyTime" class="text-sm sm:text-base text-ink/70 tracking-wide mb-2.5 sm:mb-5"></p>
 
-        <div class="inline-flex items-center gap-2 text-sm text-maroon/80 bg-marigold/10 px-4 py-2 rounded-full border border-marigold/20">
+        <div class="inline-flex items-center gap-2 text-xs sm:text-sm text-maroon/80 bg-marigold/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-marigold/20">
           <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/>
             <circle cx="12" cy="10" r="2.4"/>
@@ -784,13 +798,28 @@
         </div>
 
         <a id="addToCalendarBtn" href="#" target="_blank" rel="noopener"
-           class="mt-4 inline-flex items-center gap-2 bg-maroon hover:bg-maroon-light border border-brass-light/40 transition-all duration-300 hover:shadow-[0_6px_22px_rgba(232,150,31,0.4)] text-cream text-xs px-4 py-2.5 rounded-full">
+           class="mt-3 sm:mt-4 inline-flex items-center gap-2 bg-maroon hover:bg-maroon-light border border-brass-light/40 transition-all duration-300 hover:shadow-[0_6px_22px_rgba(232,150,31,0.4)] text-cream text-[11px] sm:text-xs px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full">
           <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8">
             <rect x="3" y="5" width="18" height="16" rx="2"/>
             <path d="M8 3v4M16 3v4M3 10h18"/>
           </svg>
-          Add to Google Calendar
+          Add to Calendar
         </a>
+      </div>
+
+      <!-- Event navigation: prev/next arrows + dots. Switches the card and
+           side/mobile images in place — the section itself never scrolls
+           or snaps to a different page. -->
+      <div class="flex items-center justify-center gap-4 mt-6">
+        <button id="ceremonyPrevBtn" type="button" aria-label="पिछला कार्यक्रम"
+          class="w-8 h-8 rounded-full border border-brass/40 text-maroon flex items-center justify-center hover:bg-marigold/10 transition-colors">
+          <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div id="ceremonyDots" class="flex items-center gap-2"></div>
+        <button id="ceremonyNextBtn" type="button" aria-label="अगला कार्यक्रम"
+          class="w-8 h-8 rounded-full border border-brass/40 text-maroon flex items-center justify-center hover:bg-marigold/10 transition-colors">
+          <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
     </div>
   </section>
@@ -799,7 +828,8 @@
   <section id="venue" class="js-parallax-section snap-section min-h-screen flex flex-col items-center justify-center max-w-4xl mx-auto text-center px-5 py-20">
     <div class="js-parallax-item text-xs tracking-[4px] uppercase text-marigold mb-2">Venue</div>
     <h2 class="js-parallax-item font-display text-[clamp(1.7rem,4vw,2.4rem)] text-maroon-deep mb-3">कैसे पहुंचें</h2>
-    <div class="js-parallax-item w-16 h-0.5 bg-marigold/70 mx-auto mb-10"></div>
+    <div class="js-parallax-item w-16 h-0.5 bg-marigold/70 mx-auto mb-4"></div>
+    <p class="js-parallax-item text-sm sm:text-base text-ink/70 max-w-md mx-auto mb-8 leading-relaxed">आपकी गरिमामयी उपस्थिति ही इस शुभ अवसर की शोभा बढ़ाएगी। हम आपकी प्रतीक्षा करेंगे।</p>
 
     <div class="js-parallax-item invite-card max-w-2xl mx-auto rounded-lg overflow-hidden border border-brass/30">
       <span class="card-corner tl"></span>
@@ -814,19 +844,28 @@
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade">
       </iframe>
-      <div class="bg-white px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="bg-white px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 flex-nowrap">
         <div class="text-left">
           <p id="venueName" class="font-serif text-lg text-maroon"></p>
           <p id="venueCity" class="text-base text-ink/70"></p>
         </div>
-        <a id="venueDirectionsLink" href="#" target="_blank" rel="noopener"
-           class="inline-flex items-center gap-2 bg-maroon hover:bg-maroon-light border border-brass-light/40 transition-all duration-300 hover:shadow-[0_6px_22px_rgba(232,150,31,0.4)] text-cream text-sm px-5 py-2.5 rounded-full">
-          <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/>
-            <circle cx="12" cy="10" r="2.4"/>
-          </svg>
-          Get Directions
-        </a>
+        <div class="flex items-center gap-3 flex-nowrap shrink-0">
+          <a id="venueDirectionsLink" href="#" target="_blank" rel="noopener"
+             class="inline-flex items-center gap-2 whitespace-nowrap bg-maroon hover:bg-maroon-light border border-brass-light/40 transition-all duration-300 hover:shadow-[0_6px_22px_rgba(232,150,31,0.4)] text-cream text-sm px-5 py-2.5 rounded-full">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/>
+              <circle cx="12" cy="10" r="2.4"/>
+            </svg>
+            Get Directions
+          </a>
+          <a id="venueCallSupportLink" href="#" rel="noopener"
+             class="inline-flex items-center gap-2 whitespace-nowrap bg-transparent hover:bg-marigold/10 border border-maroon/30 transition-all duration-300 text-maroon text-sm px-5 py-2.5 rounded-full">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.35 1.78.68 2.61a2 2 0 0 1-.45 2.11L8.09 9.69a16 16 0 0 0 6.22 6.22l1.25-1.25a2 2 0 0 1 2.11-.45c.83.33 1.71.56 2.61.68A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            Call for Support
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -981,12 +1020,6 @@
   }
   setText('introDateCity', [CONFIG.event.dateDisplay, CONFIG.event.cityLine].filter(Boolean).join(' · '));
 
-  setText('ceremonyTitle', CONFIG.ceremony.title);
-  setText('ceremonyTitleEnglish', CONFIG.ceremony.titleEnglish);
-  setText('ceremonyDate', CONFIG.event.dateDisplay);
-  setText('ceremonyTime', CONFIG.event.timeDisplay);
-  setText('ceremonyVenueLine', [CONFIG.venue.name, CONFIG.venue.city].filter(Boolean).join(', '));
-
   setText('venueName', CONFIG.venue.name);
   setText('venueCity', CONFIG.venue.city);
   var mapFrame = document.getElementById('venueMapFrame');
@@ -1007,6 +1040,13 @@
     } else if (embedQuery) {
       directionsLink.href = 'https://maps.google.com/?q=' + encodeURIComponent(embedQuery);
     }
+  }
+
+  // Call for Support — links to the first contact number in CONFIG.contacts.
+  var callSupportLink = document.getElementById('venueCallSupportLink');
+  if (callSupportLink && CONFIG.contacts && CONFIG.contacts.list && CONFIG.contacts.list.length) {
+    var supportPhone = CONFIG.contacts.list[0].phone;
+    if (supportPhone) callSupportLink.href = 'tel:+' + supportPhone;
   }
 
   // Hosted-by / parents' names — shown under the couple's names on the
@@ -1031,30 +1071,247 @@
   }
   setText('invitationNote', CONFIG.hosts ? CONFIG.hosts.invitationNote : '');
 
-  // Add to Google Calendar — builds a prefilled Google Calendar event link
-  // from the ceremony date/time, venue, and couple names in CONFIG.
-  var addCalBtn = document.getElementById('addToCalendarBtn');
-  if (addCalBtn && CONFIG.event && CONFIG.event.dateISO) {
-    var startDate = new Date(CONFIG.event.dateISO);
-    if (!isNaN(startDate.getTime())) {
-      var endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000); // default 3-hour duration
-      var toGCalDate = function (d) {
-        return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      };
+  // ---------------------------------------------------------------------
+  // 2c. EVENT CARD CAROUSEL — multiple wedding events (Haldi, Sangeet,
+  //     Wedding, Reception, etc. — from CONFIG.schedule.events) all live
+  //     inside the SAME section. Prev/next arrows and dots swap the card
+  //     content and the side/mobile images in place with a fade; the
+  //     page never scrolls or snaps to a new section for this.
+  // ---------------------------------------------------------------------
+  (function initCeremonyCarousel() {
+    var events = (CONFIG.schedule && CONFIG.schedule.events) || [];
+    if (!events.length) return;
+
+    var titleEl = document.getElementById('ceremonyTitle');
+    var titleEnEl = document.getElementById('ceremonyTitleEnglish');
+    var dateEl = document.getElementById('ceremonyDate');
+    var timeEl = document.getElementById('ceremonyTime');
+    var venueEl = document.getElementById('ceremonyVenueLine');
+    var cardEl = document.getElementById('ceremonyCard');
+    var calBtn = document.getElementById('addToCalendarBtn');
+    var dotsWrap = document.getElementById('ceremonyDots');
+    var prevBtn = document.getElementById('ceremonyPrevBtn');
+    var nextBtn = document.getElementById('ceremonyNextBtn');
+
+    var sideLeftWrap = document.getElementById('ceremonySideImgLeft');
+    var sideRightWrap = document.getElementById('ceremonySideImgRight');
+    var sideLeftImg = document.getElementById('ceremonySideImgLeftEl');
+    var sideRightImg = document.getElementById('ceremonySideImgRightEl');
+    var mobileRow = document.getElementById('ceremonyMobileImgRow');
+    var mobileLeftImg = document.getElementById('ceremonyMobileImgLeftEl');
+    var mobileRightImg = document.getElementById('ceremonyMobileImgRightEl');
+
+    var current = 0;
+
+    function toGCalDate(d) {
+      return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    }
+
+    function buildCalendarLink(ev) {
+      // Reuse CONFIG.event.dateISO's date-time-of-day pattern isn't safe
+      // per-event since only CONFIG.event has a full ISO string; fall back
+      // gracefully to just linking the wedding day's ISO if this event
+      // doesn't carry one, so the button always has something sensible.
+      var iso = ev.dateISO || (CONFIG.event && CONFIG.event.dateISO);
+      if (!iso) return '#';
+      var startDate = new Date(iso);
+      if (isNaN(startDate.getTime())) return '#';
+      var endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
       var gcalTitle = encodeURIComponent(
-        (CONFIG.event.titleHindi || 'Wedding') + ' — ' +
+        (ev.titleEnglish || ev.title || 'Wedding Event') + ' — ' +
         (CONFIG.couple.brideName || '') + ' & ' + (CONFIG.couple.groomName || '')
       );
       var gcalDates = toGCalDate(startDate) + '/' + toGCalDate(endDate);
-      var gcalLocation = encodeURIComponent([CONFIG.venue.name, CONFIG.venue.city].filter(Boolean).join(', '));
-      var gcalDetails = encodeURIComponent(
-        (CONFIG.ceremony ? CONFIG.ceremony.title : '') +
-        (CONFIG.event.timeDisplay ? ' — ' + CONFIG.event.timeDisplay : '')
-      );
-      addCalBtn.href = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + gcalTitle +
+      var gcalLocation = encodeURIComponent(ev.venueLine || [CONFIG.venue.name, CONFIG.venue.city].filter(Boolean).join(', '));
+      var gcalDetails = encodeURIComponent(ev.titleEnglish || ev.title || '');
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + gcalTitle +
         '&dates=' + gcalDates + '&details=' + gcalDetails + '&location=' + gcalLocation;
     }
-  }
+
+    function renderDots() {
+      if (!dotsWrap) return;
+      dotsWrap.innerHTML = '';
+      events.forEach(function (ev, idx) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.setAttribute('aria-label', (ev.title || 'Event') + ' दिखाएं');
+        dot.className = 'rounded-full transition-all duration-300 ' +
+          (idx === current
+            ? 'w-6 h-2 bg-marigold'
+            : 'w-2 h-2 bg-brass/35 hover:bg-brass/60');
+        dot.addEventListener('click', function () { goTo(idx); });
+        dotsWrap.appendChild(dot);
+      });
+    }
+
+    function render() {
+      var ev = events[current];
+      if (!ev) return;
+
+      setText('ceremonyTitle', ev.title);
+      setText('ceremonyTitleEnglish', ev.titleEnglish);
+      setText('ceremonyDate', ev.dateDisplay);
+      setText('ceremonyTime', ev.timeDisplay);
+      setText('ceremonyVenueLine', ev.venueLine);
+
+      if (calBtn) calBtn.href = buildCalendarLink(ev);
+
+      var groomSrc = ev.groomImage || '';
+      var brideSrc = ev.brideImage || '';
+      if (sideLeftImg && groomSrc) sideLeftImg.src = groomSrc;
+      if (sideRightImg && brideSrc) sideRightImg.src = brideSrc;
+      if (mobileLeftImg && groomSrc) mobileLeftImg.src = groomSrc;
+      if (mobileRightImg && brideSrc) mobileRightImg.src = brideSrc;
+
+      // Desktop side images — hide the side entirely when this event only
+      // supplies one image (e.g. Haldi shows just the left image, Mehandi
+      // shows just the right image, instead of always showing both).
+      if (sideLeftWrap) sideLeftWrap.style.display = groomSrc ? '' : 'none';
+      if (sideRightWrap) sideRightWrap.style.display = brideSrc ? '' : 'none';
+
+      // Mobile image row — same single-image behaviour: hide whichever
+      // side has no image so the remaining one sits centered alone.
+      if (mobileLeftImg) mobileLeftImg.style.display = groomSrc ? '' : 'none';
+      if (mobileRightImg) mobileRightImg.style.display = brideSrc ? '' : 'none';
+
+      renderDots();
+    }
+
+    function fadeSwap(idx) {
+      if (idx === current || idx < 0 || idx >= events.length) return;
+      current = idx;
+
+      var fadeTargets = [cardEl, sideLeftWrap, sideRightWrap, mobileRow].filter(Boolean);
+      fadeTargets.forEach(function (el) { el.style.opacity = '0'; });
+
+      setTimeout(function () {
+        render();
+        fadeTargets.forEach(function (el) { el.style.opacity = '1'; });
+      }, 220);
+    }
+
+    function goTo(idx) { fadeSwap(idx); }
+    function goNext() { if (current < events.length - 1) fadeSwap(current + 1); }
+    function goPrev() { if (current > 0) fadeSwap(current - 1); }
+
+    if (prevBtn) prevBtn.addEventListener('click', goPrev);
+    if (nextBtn) nextBtn.addEventListener('click', goNext);
+
+    // -----------------------------------------------------------------
+    // SCROLL / SWIPE TO CHANGE EVENT — while the ceremony section is the
+    // one in view, an intentional scroll-down/up or swipe up/down steps
+    // through the event cards (Haldi → Sangeet → Wedding → Reception)
+    // instead of immediately snapping to the next/previous section. Once
+    // the visitor is on the last event and scrolls further down (or on
+    // the first event and scrolls further up), the gesture is allowed
+    // through so normal section-to-section scrolling resumes.
+    // -----------------------------------------------------------------
+    var ceremonySection = document.getElementById('ceremony-section');
+    var sectionInView = false;
+    var gestureLocked = false; // brief cooldown so one swipe/wheel tick = one card change
+
+    if (ceremonySection && 'IntersectionObserver' in window) {
+      var ceremonyViewObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          sectionInView = entry.isIntersecting && entry.intersectionRatio > 0.6;
+        });
+      }, { threshold: [0, 0.6, 1] });
+      ceremonyViewObserver.observe(ceremonySection);
+    }
+
+    function releaseGestureLockSoon() {
+      gestureLocked = true;
+      setTimeout(function () { gestureLocked = false; }, 700);
+    }
+
+    document.addEventListener('wheel', function (e) {
+      if (!sectionInView || gestureLocked) return;
+      var scrollingDown = e.deltaY > 0;
+      var atLastEvent = current === events.length - 1;
+      var atFirstEvent = current === 0;
+
+      // Only intercept while there's still a card to move to in that
+      // direction; otherwise let the browser handle normal section snap.
+      if (scrollingDown && !atLastEvent) {
+        e.preventDefault();
+        goNext();
+        releaseGestureLockSoon();
+      } else if (!scrollingDown && !atFirstEvent) {
+        e.preventDefault();
+        goPrev();
+        releaseGestureLockSoon();
+      }
+      // else: fall through, allow native scroll to move to next/prev section
+    }, { passive: false, capture: true });
+
+    // Touch/swipe equivalent for mobile scrolling gesture (separate from
+    // the existing left/right swipe-on-card handler below, which stays
+    // for direct horizontal swipes on the card itself).
+    var sectionTouchStartY = null;
+    document.addEventListener('touchstart', function (e) {
+      if (!sectionInView) return;
+      sectionTouchStartY = e.touches[0].clientY;
+    }, { passive: true, capture: true });
+
+    document.addEventListener('touchmove', function (e) {
+      if (!sectionInView || gestureLocked || sectionTouchStartY === null) return;
+      var dy = sectionTouchStartY - e.touches[0].clientY;
+      var atLastEvent = current === events.length - 1;
+      var atFirstEvent = current === 0;
+
+      if (Math.abs(dy) < 28) return; // ignore tiny jitters
+
+      var scrollingDown = dy > 0;
+      if (scrollingDown && !atLastEvent) {
+        e.preventDefault();
+        goNext();
+        releaseGestureLockSoon();
+        sectionTouchStartY = e.touches[0].clientY;
+      } else if (!scrollingDown && !atFirstEvent) {
+        e.preventDefault();
+        goPrev();
+        releaseGestureLockSoon();
+        sectionTouchStartY = e.touches[0].clientY;
+      }
+      // else: allow native swipe-scroll through to next/prev section
+    }, { passive: false, capture: true });
+
+    document.addEventListener('touchend', function () {
+      sectionTouchStartY = null;
+    }, { passive: true, capture: true });
+
+    // Keyboard arrow-down/up also step through cards when this section
+    // is focused/in view, mirroring the scroll behaviour.
+    document.addEventListener('keydown', function (e) {
+      if (!sectionInView) return;
+      if (e.key === 'ArrowDown' && current < events.length - 1) {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === 'ArrowUp' && current > 0) {
+        e.preventDefault();
+        goPrev();
+      }
+    });
+
+    // Swipe support on the card itself for mobile
+    var cardTouchStartX = null;
+    if (cardEl) {
+      cardEl.addEventListener('touchstart', function (e) {
+        cardTouchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      cardEl.addEventListener('touchend', function (e) {
+        if (cardTouchStartX === null) return;
+        var dx = e.changedTouches[0].clientX - cardTouchStartX;
+        if (Math.abs(dx) > 40) {
+          if (dx < 0) goNext(); else goPrev();
+        }
+        cardTouchStartX = null;
+      }, { passive: true });
+    }
+
+    render();
+  })();
+
 
   // Venue parking / metro note appended to the venue address line
   if (CONFIG.venue.parkingNote) {
